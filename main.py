@@ -2,7 +2,7 @@ import pygame
 import sys
 
 
-class Player():
+class Player(): # usually a class should be in another file for organisation, which is why it has parameters
     def __init__(self, pos, tile_size):
         self.display = pygame.display.get_surface()
         self.image = pygame.Surface((tile_size, tile_size))
@@ -53,6 +53,14 @@ class Player():
             self.image, (self.rect.x - scroll.x, self.rect.y - scroll.y))
 
 
+def draw_text(text, size, color, surface, pos):
+    font = pygame.font.Font('assets/PressStart2P-Regular.ttf', size)
+    text_render = font.render(text, True, color)
+    text_rect = text_render.get_rect()
+    text_rect.center = pos
+    display.blit(text_render, text_rect)
+
+
 def load_map(path):
     with open(f'{path}.txt', 'r') as f:
         data = f.read()
@@ -63,7 +71,7 @@ def load_map(path):
         return game_map
 
 
-def render_map(path):
+def render_map(path, tiles):
     game_map = load_map(path)
     for y, row in enumerate(game_map):
         for x, tile in enumerate(row):
@@ -72,64 +80,71 @@ def render_map(path):
                 dirt_image.fill((100, 50, 50))
                 display.blit(dirt_image, (x * tile_size -
                              scroll.x, y * tile_size - scroll.y))
-                tile_rects.append(pygame.Rect(
+                tiles.append(pygame.Rect(
                     x * tile_size, y * tile_size, tile_size, tile_size))
             if tile == '2':
                 grass_image = pygame.Surface((tile_size, tile_size))
                 grass_image.fill((0, 255, 0))
                 display.blit(grass_image, (x * tile_size -
                              scroll.x, y * tile_size - scroll.y))
-                tile_rects.append(pygame.Rect(
+                tiles.append(pygame.Rect(
                     x * tile_size, y * tile_size, tile_size, tile_size))
+
+
+def game():
+    while True:
+        tile_rects = []
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_w:
+                    if player.air_timer < 2:
+                        player.gravity = -8
+                if event.key == pygame.K_a:
+                    player.moving_left = True
+                if event.key == pygame.K_d:
+                    player.moving_right = True
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_a:
+                    player.moving_left = False
+                if event.key == pygame.K_d:
+                    player.moving_right = False
+
+        display.fill((146, 244, 255))
+
+        pygame.draw.rect(display, (5, 80, 75), pygame.Rect(
+            0, (window_size.y // 2), window_size.x, (window_size.y // 2)))
+
+        scroll.x += (player.rect.x - scroll.x -
+                     (window_size.x // 2) + (player.rect.width // 2)) // 20
+        scroll.y += (player.rect.y - scroll.y -
+                     (window_size.y // 2) + (player.rect.width // 2)) // 20
+
+        render_map('map', tile_rects)
+
+        player.update(tile_rects, scroll)
+
+        draw_text(f'FPS: {str(int(clock.get_fps()))}', 16, (255, 255,
+                  255), display, (window_size.x // 2, (window_size.y - 25)))
+
+        pygame.display.update()
+        clock.tick(60)
 
 
 clock = pygame.time.Clock()
 pygame.init()
-pygame.display.set_caption('Tile System')
+pygame.display.set_caption('Mining Sim')
 window_size = pygame.math.Vector2(600, 400)
 display = pygame.display.set_mode(window_size)
 
 tile_size = 32
-tile_rects = []
 
 scroll = pygame.math.Vector2(0, 0)
 
 player = Player(pygame.math.Vector2(100, 100), tile_size)
 
-while True:
-    display.fill((146, 244, 255))
-
-    pygame.draw.rect(display, (5, 80, 75), pygame.Rect(
-        0, (window_size.y // 2), window_size.x, (window_size.y // 2)))
-
-    scroll.x += (player.rect.x - scroll.x -
-                 (window_size.x // 2) + (player.rect.width // 2)) // 20
-    scroll.y += (player.rect.y - scroll.y -
-                 (window_size.y // 2) + (player.rect.width // 2)) // 20
-
-    tile_rects = []
-    render_map('map')
-
-    player.update(tile_rects, scroll)
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
-                player.moving_right = True
-            if event.key == pygame.K_LEFT:
-                player.moving_left = True
-            if event.key == pygame.K_UP:
-                for tile in tile_rects:
-                    if player.rect.bottom == tile.top:
-                        player.gravity = -8
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_RIGHT:
-                player.moving_right = False
-            if event.key == pygame.K_LEFT:
-                player.moving_left = False
-
-    pygame.display.update()
-    clock.tick(60)
+if __name__ == '__main__':
+    game_state = game()
