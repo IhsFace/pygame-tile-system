@@ -134,11 +134,11 @@ def game():
         clock.tick(60)
 
 
-clock = pygame.time.Clock()
 pygame.init()
 pygame.display.set_caption('Mining Sim')
 window_size = pygame.math.Vector2(600, 400)
 display = pygame.display.set_mode(window_size)
+clock = pygame.time.Clock()
 
 tile_size = 32
 
