@@ -140,7 +140,7 @@ window_size = pygame.math.Vector2(600, 400)
 display = pygame.display.set_mode(window_size)
 clock = pygame.time.Clock()
 
-tile_size = 16
+tile_size = 32
 
 scroll = pygame.math.Vector2(0, 0)
 
