@@ -76,15 +76,11 @@ def render_map(path, tiles):
     for y, row in enumerate(game_map):
         for x, tile in enumerate(row):
             if tile == '1':
-                dirt_image = pygame.Surface((tile_size, tile_size))
-                dirt_image.fill((100, 50, 50))
                 display.blit(dirt_image, (x * tile_size -
                              scroll.x, y * tile_size - scroll.y))
                 tiles.append(pygame.Rect(
                     x * tile_size, y * tile_size, tile_size, tile_size))
             if tile == '2':
-                grass_image = pygame.Surface((tile_size, tile_size))
-                grass_image.fill((0, 255, 0))
                 display.blit(grass_image, (x * tile_size -
                              scroll.x, y * tile_size - scroll.y))
                 tiles.append(pygame.Rect(
@@ -143,6 +139,11 @@ clock = pygame.time.Clock()
 tile_size = 32
 
 scroll = pygame.math.Vector2(0, 0)
+
+dirt_image = pygame.Surface((tile_size, tile_size))
+dirt_image.fill((100, 50, 50))
+grass_image = pygame.Surface((tile_size, tile_size))
+grass_image.fill((0, 255, 0))
 
 player = Player(pygame.math.Vector2(100, 100), tile_size)
 
